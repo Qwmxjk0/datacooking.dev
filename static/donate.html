@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คิวกำลังใจ — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">คิวกำลังใจ</small></span></a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
+      </div>
+    </header>
+    <h1 data-i="title">เครื่องมือนี้แจกฟรี</h1>
+    <p class="lead" data-i="lead">ไม่เก็บเงิน ไม่ต้องสมัคร ถ้าชอบก็ทักทายคิวนี้ได้ ชื่อเล่นสั้นๆ พอ</p>
+    <div class="card">
+      <label data-i="name">ชื่อเล่น</label>
+      <input id="name" maxlength="24" style="width:100%;margin:8px 0 12px;padding:14px;border-radius:12px;border:1px solid var(--line);background:#101218;color:var(--ink);font:inherit">
+      <label data-i="note">ข้อความสั้นๆ (ไม่บังคับ)</label>
+      <input id="note" maxlength="80" style="width:100%;margin:8px 0 0;padding:14px;border-radius:12px;border:1px solid var(--line);background:#101218;color:var(--ink);font:inherit">
+      <button class="btn" id="send" data-i="send">เข้าคิว</button>
+      <p id="error" class="err hidden"></p>
+      <p id="done" class="ok hidden"></p>
+    </div>
+    <p class="section-title" data-i="queue">คิวล่าสุด</p>
+    <div id="list"></div>
+    <aside class="profile">
+      <img src="/profile.jpg" alt="Kittanai Kaptaphon">
+      <div>
+        <b>Kittanai Kaptaphon</b>
+        <small>Data Engineer</small>
+        <div class="links">
+          <a href="https://github.com/Qwmxjk0" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/kittanai-kaptaphon/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: { tagline: "คิวกำลังใจ", allTools: "← กลับหน้าแรก", title: "เครื่องมือนี้แจกฟรี", lead: "ไม่เก็บเงิน ไม่ต้องสมัคร ถ้าชอบก็ทักทายคิวนี้ได้ ชื่อเล่นสั้นๆ พอ", name: "ชื่อเล่น", note: "ข้อความสั้นๆ (ไม่บังคับ)", send: "เข้าคิว", queue: "คิวล่าสุด", ok: "เข้าคิวแล้ว ขอบคุณ", empty: "ยังว่าง มาเป็นคนแรกได้" },
+      en: { tagline: "Cheer queue", allTools: "← Home", title: "This tool is free", lead: "No signup. If you like it, leave a short nickname in the queue.", name: "Nickname", note: "A short note (optional)", send: "Join the queue", queue: "Latest", ok: "You’re in. Thank you.", empty: "Empty. Be the first." }
+    };
+    function t(k){ const l=DC.currentLang(); return (I18N[l]||I18N.th)[k]; }
+    DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("donate");
+    window.addEventListener("dc-lang", () => { DC.applyI18n(I18N); load(); });
+    function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+    async function load(){
+      const list = document.getElementById("list");
+      const rows = await fetch("/api/v1/donors").then(r => r.json()).catch(() => []);
+      if (!rows.length) { list.innerHTML = `<p class="foot">${t("empty")}</p>`; return; }
+      list.innerHTML = rows.slice().reverse().map(d =>
+        `<div class="card" style="margin-bottom:8px"><b>${esc(d.name)}</b>${d.note?`<div style="color:var(--muted)">${esc(d.note)}</div>`:""}</div>`
+      ).join("");
+    }
+    document.getElementById("send").onclick = async () => {
+      const err = document.getElementById("error");
+      const done = document.getElementById("done");
+      err.classList.add("hidden"); done.classList.add("hidden");
+      const res = await fetch("/api/v1/donors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: document.getElementById("name").value, note: document.getElementById("note").value })
+      });
+      if (!res.ok) { err.textContent = await res.text(); err.classList.remove("hidden"); return; }
+      done.textContent = t("ok"); done.classList.remove("hidden");
+      document.getElementById("name").value = "";
+      document.getElementById("note").value = "";
+      load();
+    };
+    load();
+  </script>
+</body>
+</html>

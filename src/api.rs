@@ -1,25 +1,36 @@
 use crate::MAX_UPLOAD_BYTES;
+use crate::donors::DonorQueue;
 use crate::encoding::{self, EncodingReport};
 use crate::engine::{self, CompareReport, ConversionStats};
 use crate::error::AppError;
+use crate::status;
 use axum::Json;
 use axum::body::Body;
-use axum::extract::{Multipart, State};
+use axum::extract::{ConnectInfo, Multipart, State};
 use axum::http::{HeaderMap, HeaderValue, header};
 use axum::response::{IntoResponse, Response};
 use bytes::Bytes;
 use futures_core::Stream;
 use metrics::{counter, histogram};
 use metrics_exporter_prometheus::PrometheusHandle;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 use std::pin::Pin;
+use std::sync::Arc;
 use std::task::{Context, Poll};
 use std::time::Instant;
 use tempfile::NamedTempFile;
 use tokio::io::AsyncWriteExt;
 use tokio_util::io::ReaderStream;
+
+#[derive(Clone)]
+pub struct AppState {
+    pub metrics: PrometheusHandle,
+    pub donors: Arc<DonorQueue>,
+    pub cpu: Arc<status::CpuSampler>,
+}
 
 pub async fn health_check() -> impl IntoResponse {
     Json(json!({
@@ -29,14 +40,59 @@ pub async fn health_check() -> impl IntoResponse {
         "timestamp": chrono::Utc::now().to_rfc3339(),
         "max_upload_bytes": MAX_UPLOAD_BYTES,
         "tools": [
+            { "id": "fix-encoding", "path": "/fix-encoding.html", "status": "live" },
             { "id": "csv-parquet", "path": "/csv-parquet.html", "status": "live" },
-            { "id": "fix-encoding", "path": "/fix-encoding.html", "status": "live" }
+            { "id": "my-ip", "path": "/my-ip.html", "status": "live" },
+            { "id": "subnet", "path": "/subnet.html", "status": "live" }
         ],
     }))
 }
 
-pub async fn metrics_handler(State(handle): State<PrometheusHandle>) -> impl IntoResponse {
-    handle.render()
+pub async fn metrics_handler(State(state): State<AppState>) -> impl IntoResponse {
+    state.metrics.render()
+}
+
+pub async fn status_handler(State(state): State<AppState>) -> impl IntoResponse {
+    Json(json!({
+        "cpu_percent": state.cpu.percent(),
+        "ram": status::ram(),
+    }))
+}
+
+pub async fn my_ip_handler(
+    headers: HeaderMap,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+) -> impl IntoResponse {
+    let forwarded = headers
+        .get("x-forwarded-for")
+        .and_then(|v| v.to_str().ok())
+        .and_then(|s| s.split(',').next())
+        .map(|s| s.trim().to_string());
+    Json(json!({
+        "ip": forwarded.unwrap_or_else(|| addr.ip().to_string()),
+    }))
+}
+
+pub async fn donors_list(State(state): State<AppState>) -> impl IntoResponse {
+    Json(state.donors.list())
+}
+
+#[derive(Deserialize)]
+pub struct DonorIn {
+    name: String,
+    #[serde(default)]
+    note: String,
+}
+
+pub async fn donors_add(
+    State(state): State<AppState>,
+    Json(body): Json<DonorIn>,
+) -> Result<impl IntoResponse, AppError> {
+    let donor = state
+        .donors
+        .push(&body.name, &body.note)
+        .map_err(AppError::bad_request)?;
+    Ok(Json(donor))
 }
 
 pub async fn csv_to_parquet_handler(multipart: Multipart) -> Result<Response, AppError> {

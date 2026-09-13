@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ดู IP ของฉัน — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">ดู IP ของฉัน</small></span></a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
+      </div>
+    </header>
+    <h1 data-i="title">เครื่องนี้ออกเน็ตด้วยเลขอะไร</h1>
+    <p class="lead" data-i="lead">กดดู แล้วได้เลข IP ที่เว็บเห็นจากเครื่องคุณ</p>
+    <div class="card">
+      <p class="ip-big" id="ip">…</p>
+      <button class="btn" id="copy" data-i="copy">คัดลอกเลขนี้</button>
+      <p id="done" class="ok hidden"></p>
+    </div>
+    <p class="foot" data-i="foot">ของเล่นเน็ต แจกฟรี ไม่เก็บประวัติ</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: { tagline: "ดู IP ของฉัน", allTools: "← กลับหน้าแรก", title: "เครื่องนี้ออกเน็ตด้วยเลขอะไร", lead: "กดดู แล้วได้เลข IP ที่เว็บเห็นจากเครื่องคุณ", copy: "คัดลอกเลขนี้", copied: "คัดลอกแล้ว", foot: "ของเล่นเน็ต แจกฟรี ไม่เก็บประวัติ" },
+      en: { tagline: "My IP", allTools: "← Home", title: "What IP does this device use?", lead: "This is the address the website sees from you.", copy: "Copy this number", copied: "Copied", foot: "A free network toy. Nothing is stored." }
+    };
+    DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("ip");
+    window.addEventListener("dc-lang", () => DC.applyI18n(I18N));
+    fetch("/api/v1/my-ip").then(r => r.json()).then(d => { document.getElementById("ip").textContent = d.ip || "—"; });
+    document.getElementById("copy").onclick = async () => {
+      const text = document.getElementById("ip").textContent;
+      try { await navigator.clipboard.writeText(text); } catch {}
+      const done = document.getElementById("done");
+      const lang = DC.currentLang();
+      done.textContent = I18N[lang].copied;
+      done.classList.remove("hidden");
+    };
+  </script>
+</body>
+</html>

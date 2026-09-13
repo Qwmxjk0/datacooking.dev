@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ดู RAM — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">ดู RAM</small></span></a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
+      </div>
+    </header>
+    <h1 data-i="title">หน่วยความจำของเครื่องนี้</h1>
+    <p class="lead" data-i="lead">ดูคร่าวๆ ว่าเซิร์ฟเวอร์ยังเหลือ RAM เท่าไร อัปเดตเองทุก 5 วินาที</p>
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><small data-i="used">ใช้ไป</small><b id="used">—</b></div>
+        <div class="stat"><small data-i="total">ทั้งหมด</small><b id="total">—</b></div>
+      </div>
+      <div style="margin-top:16px;height:16px;border-radius:999px;background:#2a2e38;overflow:hidden">
+        <div id="bar" style="height:100%;width:0;background:#f59e0b"></div>
+      </div>
+      <p id="pct" class="foot" style="margin-top:12px"></p>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: { tagline: "ดู RAM", allTools: "← กลับหน้าแรก", title: "หน่วยความจำของเครื่องนี้", lead: "ดูคร่าวๆ ว่าเซิร์ฟเวอร์ยังเหลือ RAM เท่าไร อัปเดตเองทุก 5 วินาที", used: "ใช้ไป", total: "ทั้งหมด" },
+      en: { tagline: "RAM", allTools: "← Home", title: "Memory on this server", lead: "A rough look at RAM left. Updates every 5 seconds.", used: "Used", total: "Total" }
+    };
+    DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("ram");
+    window.addEventListener("dc-lang", () => DC.applyI18n(I18N));
+    function fmt(n){
+      const g = n / (1024*1024*1024);
+      return g >= 1 ? g.toFixed(1)+" GB" : (n/1024/1024).toFixed(0)+" MB";
+    }
+    async function tick(){
+      const res = await fetch("/api/v1/status");
+      const data = await res.json();
+      if (!data.ram) return;
+      document.getElementById("used").textContent = fmt(data.ram.used_bytes);
+      document.getElementById("total").textContent = fmt(data.ram.total_bytes);
+      const p = Math.max(0, Math.min(100, data.ram.used_percent));
+      document.getElementById("bar").style.width = p.toFixed(0)+"%";
+      document.getElementById("pct").textContent = Math.round(p) + "%";
+    }
+    tick(); setInterval(tick, 5000);
+  </script>
+</body>
+</html>

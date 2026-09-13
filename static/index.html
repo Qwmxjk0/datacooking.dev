@@ -15,7 +15,7 @@
     <header class="top">
       <a class="brand" href="/">
         <img src="/icon.svg" alt="">
-        <span>DataCooking.dev<small data-i="tagline">แปลงไฟล์ ใช้งานง่าย</small></span>
+        <span>DataCooking.dev<small data-i="tagline">แปลงไฟล์ ใช้งานง่าย แจกฟรี</small></span>
       </a>
       <div class="top-actions">
         <div id="healthBadge" class="health">
@@ -30,53 +30,118 @@
     </header>
 
     <h1 data-i="hero">เลือกสิ่งที่ต้องการทำ</h1>
-    <p class="lead" data-i="lead">กดช่องด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องติดตั้งโปรแกรม</p>
+    <p class="lead" data-i="lead">กดรูปด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องลงโปรแกรม</p>
 
-    <ol class="steps">
-      <li><span class="num">1</span><span data-i="s1">เลือกงานที่ต้องการ</span></li>
-      <li><span class="num">2</span><span data-i="s2">กดปุ่มเลือกไฟล์จากเครื่อง</span></li>
-      <li><span class="num">3</span><span data-i="s3">กดแปลง ไฟล์ใหม่อยู่ในโฟลเดอร์ดาวน์โหลด</span></li>
-    </ol>
+    <p class="section-title" data-i="work">งานไฟล์</p>
+    <div class="grid">
+      <a class="tile" href="/fix-encoding.html">
+        <img src="/icons/encoding.svg" alt="">
+        <div class="body">
+          <strong data-i="t1">แก้ไฟล์เพี้ยน</strong>
+          <span data-i="t1d">เปิด Excel แล้วไทยอ่านไม่ได้</span>
+        </div>
+      </a>
+      <a class="tile" href="/csv-parquet.html">
+        <img src="/icons/shrink.svg" alt="">
+        <div class="body">
+          <strong data-i="t2">ทำให้ไฟล์เล็กลง</strong>
+          <span data-i="t2d">แปลง CSV หรือเปิดกลับใน Excel</span>
+        </div>
+      </a>
+    </div>
 
-    <a class="choice" href="/fix-encoding.html">
-      <strong data-i="t1">เปิดไฟล์แล้วตัวอักษรเพี้ยน</strong>
-      <span data-i="t1d">เช่น เปิดใน Excel แล้วไทยอ่านไม่ได้ กดที่นี่</span>
-    </a>
-    <a class="choice" href="/csv-parquet.html">
-      <strong data-i="t2">ทำให้ไฟล์เล็กลง หรือเปิดไฟล์เล็กกลับเป็น Excel</strong>
-      <span data-i="t2d">แปลง CSV ให้เล็ก หรือแปลงกลับเป็น CSV เพื่อเปิดใน Excel</span>
-    </a>
+    <p class="section-title" data-i="toys">ของเล่นเน็ต</p>
+    <div class="grid">
+      <a class="tile" href="/my-ip.html">
+        <img src="/icons/ip.svg" alt="">
+        <div class="body">
+          <strong data-i="t3">ดู IP ของฉัน</strong>
+          <span data-i="t3d">เครื่องนี้ออกเน็ตด้วยเลขอะไร</span>
+        </div>
+      </a>
+      <a class="tile" href="/subnet.html">
+        <img src="/icons/subnet.svg" alt="">
+        <div class="body">
+          <strong data-i="t4">คำนวณ subnet</strong>
+          <span data-i="t4d">ใส่ 192.168.1.0/24 แล้วดูช่วง IP</span>
+        </div>
+      </a>
+    </div>
 
-    <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB และไม่เก็บไว้บนเว็บหลังใช้งาน</p>
+    <div class="grid">
+      <a class="tile" href="/status.html">
+        <img src="/icons/ram.svg" alt="">
+        <div class="body">
+          <strong data-i="t5">ดู RAM เครื่องนี้</strong>
+          <span id="ramLine" data-i="t5d">สถานะหน่วยความจำของเซิร์ฟเวอร์</span>
+        </div>
+      </a>
+      <a class="tile" href="/donate.html">
+        <img src="/icons/donate.svg" alt="">
+        <div class="body">
+          <strong data-i="t6">คิวกำลังใจ</strong>
+          <span data-i="t6d">แจกฟรี ถ้าชอบทักทายคิวนี้ได้</span>
+        </div>
+      </a>
+    </div>
+
+    <aside class="profile">
+      <img src="/profile.jpg" alt="Kittanai Kaptaphon">
+      <div>
+        <b>Kittanai Kaptaphon</b>
+        <small>Data Engineer</small>
+        <div class="links">
+          <a href="https://github.com/Qwmxjk0" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/kittanai-kaptaphon/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </aside>
+    <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB · ไม่เก็บไฟล์ไว้บนเว็บ · ใช้ฟรี</p>
   </div>
   <script src="/js/common.js"></script>
   <script>
     const I18N = {
       th: {
-        tagline: "แปลงไฟล์ ใช้งานง่าย",
+        tagline: "แปลงไฟล์ ใช้งานง่าย แจกฟรี",
         hero: "เลือกสิ่งที่ต้องการทำ",
-        lead: "กดช่องด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องติดตั้งโปรแกรม",
-        s1: "เลือกงานที่ต้องการ",
-        s2: "กดปุ่มเลือกไฟล์จากเครื่อง",
-        s3: "กดแปลง ไฟล์ใหม่อยู่ในโฟลเดอร์ดาวน์โหลด",
-        t1: "เปิดไฟล์แล้วตัวอักษรเพี้ยน",
-        t1d: "เช่น เปิดใน Excel แล้วไทยอ่านไม่ได้ กดที่นี่",
-        t2: "ทำให้ไฟล์เล็กลง หรือเปิดไฟล์เล็กกลับเป็น Excel",
-        t2d: "แปลง CSV ให้เล็ก หรือแปลงกลับเป็น CSV เพื่อเปิดใน Excel",
-        foot: "ไฟล์ไม่เกิน 100 MB และไม่เก็บไว้บนเว็บหลังใช้งาน",
+        lead: "กดรูปด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องลงโปรแกรม",
+        work: "งานไฟล์",
+        toys: "ของเล่นเน็ต",
+        t1: "แก้ไฟล์เพี้ยน",
+        t1d: "เปิด Excel แล้วไทยอ่านไม่ได้",
+        t2: "ทำให้ไฟล์เล็กลง",
+        t2d: "แปลง CSV หรือเปิดกลับใน Excel",
+        t3: "ดู IP ของฉัน",
+        t3d: "เครื่องนี้ออกเน็ตด้วยเลขอะไร",
+        t4: "คำนวณ subnet",
+        t4d: "ใส่ 192.168.1.0/24 แล้วดูช่วง IP",
+        t5: "ดู RAM เครื่องนี้",
+        t5d: "สถานะหน่วยความจำของเซิร์ฟเวอร์",
+        t6: "คิวกำลังใจ",
+        t6d: "แจกฟรี ถ้าชอบทักทายคิวนี้ได้",
+        foot: "ไฟล์ไม่เกิน 100 MB · ไม่เก็บไฟล์ไว้บนเว็บ · ใช้ฟรี",
+        ram: "RAM ใช้ไป {n}%",
       },
       en: {
-        tagline: "Simple file tools",
+        tagline: "Simple file tools, free",
         hero: "What do you want to do?",
-        lead: "Tap a box, then pick a file from your computer. Nothing to install.",
-        s1: "Choose a task",
-        s2: "Tap the button and pick a file",
-        s3: "Convert. The new file is in your Downloads folder",
-        t1: "The file opens with broken Thai text",
-        t1d: "For example Excel shows junk characters. Tap here.",
-        t2: "Make a file smaller, or open it in Excel again",
-        t2d: "Turn CSV into a smaller file, or back into CSV for Excel.",
-        foot: "100 MB max. Nothing is kept on the website.",
+        lead: "Tap a picture, then pick a file. Nothing to install.",
+        work: "File jobs",
+        toys: "Network toys",
+        t1: "Fix garbled text",
+        t1d: "Excel shows broken Thai",
+        t2: "Make a file smaller",
+        t2d: "CSV to a smaller file, or back to Excel",
+        t3: "My IP",
+        t3d: "See the address this device uses",
+        t4: "Subnet calculator",
+        t4d: "Try 192.168.1.0/24 and see the range",
+        t5: "Server RAM",
+        t5d: "Memory used on this server",
+        t6: "Cheer queue",
+        t6d: "This is free. Leave a short hello if you like.",
+        foot: "100 MB max · files are not kept · free",
+        ram: "RAM {n}% used",
       }
     };
     const healthLabels = {
@@ -85,10 +150,25 @@
     };
     DC.applyI18n(I18N);
     DC.bindLangToggle(I18N);
+    DC.mountChrome("home");
     const ping = () => DC.pingHealth(healthLabels);
     ping();
     setInterval(ping, 15000);
     window.addEventListener("dc-lang", ping);
+
+    async function ram() {
+      try {
+        const res = await fetch("/api/v1/status");
+        const data = await res.json();
+        if (!data.ram) return;
+        const n = Math.round(data.ram.used_percent);
+        const key = DC.currentLang();
+        document.getElementById("ramLine").textContent = (I18N[key] || I18N.th).ram.replace("{n}", n);
+      } catch {}
+    }
+    ram();
+    setInterval(ram, 5000);
+    window.addEventListener("dc-lang", ram);
   </script>
 </body>
 </html>

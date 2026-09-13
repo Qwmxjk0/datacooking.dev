@@ -60,6 +60,17 @@
       <button id="fixBtn" class="btn" data-i="btn">บันทึกไฟล์ที่เปิดใน Excel ได้</button>
     </div>
     <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB · ไฟล์ใหม่อยู่ที่โฟลเดอร์ดาวน์โหลด</p>
+    <aside class="profile">
+      <img src="/profile.jpg" alt="Kittanai Kaptaphon">
+      <div>
+        <b>Kittanai Kaptaphon</b>
+        <small>Data Engineer</small>
+        <div class="links">
+          <a href="https://github.com/Qwmxjk0" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/kittanai-kaptaphon/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </aside>
   </div>
   <script src="/js/common.js"></script>
   <script>
@@ -216,6 +227,7 @@
     };
     function refreshStatic() {
       DC.applyI18n(I18N);
+      DC.mountChrome("encoding");
       if (!hasCustomName) {
         document.getElementById("fileName").textContent = t("drop");
         document.getElementById("fileHint").textContent = t("hint");

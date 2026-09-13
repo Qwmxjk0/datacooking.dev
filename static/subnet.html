@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คำนวณ subnet — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">คำนวณ subnet</small></span></a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
+      </div>
+    </header>
+    <h1 data-i="title">ใส่ช่วงเน็ต แล้วดูว่า IP เริ่ม–จบที่ไหน</h1>
+    <p class="lead" data-i="lead">ตัวอย่าง 192.168.1.0/24 คำนวณในเครื่องคุณ ไม่ส่งออกเน็ต</p>
+    <div class="card">
+      <label for="cidr" data-i="label">พิมพ์แบบนี้: ไอพี ตามด้วย / และตัวเลข</label>
+      <input id="cidr" value="192.168.1.0/24" style="width:100%;margin-top:8px;padding:14px;border-radius:12px;border:1px solid var(--line);background:#101218;color:var(--ink);font:inherit">
+      <button class="btn" id="go" data-i="go">คำนวณ</button>
+      <p id="error" class="err hidden"></p>
+      <div id="out" class="stats hidden"></div>
+    </div>
+    <p class="foot" data-i="foot">ของเล่นเน็ต แจกฟรี</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: { tagline: "คำนวณ subnet", allTools: "← กลับหน้าแรก", title: "ใส่ช่วงเน็ต แล้วดูว่า IP เริ่ม–จบที่ไหน", lead: "ตัวอย่าง 192.168.1.0/24 คำนวณในเครื่องคุณ ไม่ส่งออกเน็ต", label: "พิมพ์แบบนี้: ไอพี ตามด้วย / และตัวเลข", go: "คำนวณ", bad: "ใส่แบบ 192.168.1.0/24", net: "เครือข่าย", mask: "เน็ตมาสก์", first: "ไอพีแรก", last: "ไอพีสุดท้าย", hosts: "จำนวนเครื่อง", foot: "ของเล่นเน็ต แจกฟรี" },
+      en: { tagline: "Subnet calculator", allTools: "← Home", title: "See where a network starts and ends", lead: "Try 192.168.1.0/24. Calculated on your device.", label: "Type an IP, a slash, then a number", go: "Calculate", bad: "Use 192.168.1.0/24", net: "Network", mask: "Netmask", first: "First host", last: "Last host", hosts: "Usable hosts", foot: "A free network toy" }
+    };
+    function t(k){ const l=DC.currentLang(); return (I18N[l]||I18N.th)[k]; }
+    DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("subnet");
+    window.addEventListener("dc-lang", () => { DC.applyI18n(I18N); if (!document.getElementById("out").classList.contains("hidden")) calc(); });
+
+    function ipToInt(s){
+      const p = s.split(".").map(n => Number(n));
+      if (p.length !== 4 || p.some(n => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+      return ((p[0]<<24)>>>0) + (p[1]<<16) + (p[2]<<8) + p[3];
+    }
+    function intToIp(n){ return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join("."); }
+    function calc(){
+      const raw = document.getElementById("cidr").value.trim();
+      const err = document.getElementById("error");
+      const out = document.getElementById("out");
+      const m = /^(\d+\.\d+\.\d+\.\d+)\/(\d+)$/.exec(raw);
+      if (!m) { err.textContent = t("bad"); err.classList.remove("hidden"); out.classList.add("hidden"); return; }
+      const ip = ipToInt(m[1]); const prefix = Number(m[2]);
+      if (ip == null || prefix < 0 || prefix > 32) { err.textContent = t("bad"); err.classList.remove("hidden"); out.classList.add("hidden"); return; }
+      err.classList.add("hidden");
+      const mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32-prefix)) >>> 0;
+      const net = ip & mask;
+      const bcast = net | ((~mask)>>>0);
+      const hosts = prefix >= 31 ? (prefix===32?1:2) : (bcast-net-1);
+      const first = prefix>=31 ? net : net+1;
+      const last = prefix>=31 ? bcast : bcast-1;
+      out.innerHTML = [
+        [t("net"), intToIp(net)],
+        [t("mask"), intToIp(mask)],
+        [t("first"), intToIp(first>>>0)],
+        [t("last"), intToIp(last>>>0)],
+        [t("hosts"), String(hosts)]
+      ].map(([k,v]) => `<div class="stat"><small>${k}</small><b>${v}</b></div>`).join("");
+      out.classList.remove("hidden");
+    }
+    document.getElementById("go").onclick = calc;
+    document.getElementById("cidr").addEventListener("keydown", e => { if (e.key==="Enter") calc(); });
+  </script>
+</body>
+</html>
