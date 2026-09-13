@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แก้ไฟล์เพี้ยน — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/">
+        <img src="/icon.svg" alt="">
+        <span>DataCooking.dev<small data-i="tagline">แก้ไฟล์เพี้ยน</small></span>
+      </a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div id="healthBadge" class="health">
+          <span id="healthDot" class="dot"></span>
+          <span id="healthLabel">กำลังเช็ค</span>
+        </div>
+        <div class="lang">
+          <button type="button" data-lang-btn="th">ไทย</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <h1 data-i="title">เปิดไฟล์แล้วตัวอักษรเพี้ยน</h1>
+    <p class="lead" data-i="lead">ใช้เมื่อเปิด CSV ใน Excel แล้วภาษาไทยอ่านไม่ได้ เลือกไฟล์ ดูตัวอย่าง แล้วกดบันทึก</p>
+
+    <ol class="steps">
+      <li><span class="num">1</span><span data-i="s1">กดปุ่มเลือกไฟล์จากเครื่อง</span></li>
+      <li><span class="num">2</span><span data-i="s2">ดูตัวอย่างว่าอ่านไทยได้แล้วหรือยัง</span></li>
+      <li><span class="num">3</span><span data-i="s3">กดบันทึก แล้วเปิดไฟล์จากโฟลเดอร์ดาวน์โหลด</span></li>
+    </ol>
+
+    <div class="card">
+      <div id="dropzone" class="pick">
+        <input type="file" id="fileInput" accept=".csv,.txt,.tsv,text/csv,text/plain" class="hidden">
+        <p id="fileName" class="pick-title" data-i="drop">กดที่นี่เพื่อเลือกไฟล์</p>
+        <p id="fileHint" class="pick-sub" data-i="hint">ใช้ได้กับไฟล์ .csv .txt .tsv</p>
+      </div>
+      <p id="error" class="err hidden"></p>
+      <p id="done" class="ok hidden"></p>
+
+      <div id="result" class="hidden">
+        <div class="stats">
+          <div class="stat"><small data-i="found">สถานะไฟล์</small><b id="foundLabel">—</b></div>
+          <div class="stat"><small data-i="thai">พบตัวอักษรไทย</small><b id="thaiLabel">—</b></div>
+        </div>
+        <p style="margin:16px 0 8px;color:var(--muted)" data-i="preview">ตัวอย่างที่อ่านได้</p>
+        <pre id="preview" class="preview"></pre>
+      </div>
+
+      <button id="fixBtn" class="btn" data-i="btn">บันทึกไฟล์ที่เปิดใน Excel ได้</button>
+    </div>
+    <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB · ไฟล์ใหม่อยู่ที่โฟลเดอร์ดาวน์โหลด</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const MAX_BYTES = 100 * 1024 * 1024;
+    const I18N = {
+      th: {
+        tagline: "แก้ไฟล์เพี้ยน",
+        allTools: "← กลับหน้าแรก",
+        title: "เปิดไฟล์แล้วตัวอักษรเพี้ยน",
+        lead: "ใช้เมื่อเปิด CSV ใน Excel แล้วภาษาไทยอ่านไม่ได้ เลือกไฟล์ ดูตัวอย่าง แล้วกดบันทึก",
+        s1: "กดปุ่มเลือกไฟล์จากเครื่อง",
+        s2: "ดูตัวอย่างว่าอ่านไทยได้แล้วหรือยัง",
+        s3: "กดบันทึก แล้วเปิดไฟล์จากโฟลเดอร์ดาวน์โหลด",
+        drop: "กดที่นี่เพื่อเลือกไฟล์",
+        hint: "ใช้ได้กับไฟล์ .csv .txt .tsv",
+        found: "สถานะไฟล์",
+        thai: "พบตัวอักษรไทย",
+        preview: "ตัวอย่างที่อ่านได้",
+        btn: "บันทึกไฟล์ที่เปิดใน Excel ได้",
+        foot: "ไฟล์ไม่เกิน 100 MB · ไฟล์ใหม่อยู่ที่โฟลเดอร์ดาวน์โหลด",
+        needFile: "ยังไม่ได้เลือกไฟล์ กรุณากดช่องด้านบน",
+        badFile: "เลือกไฟล์นามสกุล .csv .txt หรือ .tsv เท่านั้น",
+        tooBig: "ไฟล์ใหญ่เกิน 100 MB กรุณาแยกไฟล์ก่อน",
+        saving: "กำลังทำไฟล์ใหม่…",
+        done: "เสร็จแล้ว เปิดโฟลเดอร์ดาวน์โหลดบนเครื่องเพื่อใช้ไฟล์",
+        okAlready: "ไฟล์นี้เปิดได้แล้ว ระบบจะปรับให้ Excel เปิดง่ายขึ้น",
+        enc: {
+          "utf-8": "ไฟล์ปกติ",
+          "windows-874": "ไฟล์เก่าที่เปิดเพี้ยน",
+          "utf-16le": "ไฟล์จาก Excel",
+          "utf-16be": "ไฟล์จาก Excel",
+          "utf-8-mojibake": "ตัวอักษรเพี้ยน",
+        }
+      },
+      en: {
+        tagline: "Fix broken text",
+        allTools: "← Home",
+        title: "The file opens with broken text",
+        lead: "Use this when Excel shows junk Thai characters. Pick a file, check the preview, then save.",
+        s1: "Tap to pick a file from your computer",
+        s2: "Check the preview reads correctly",
+        s3: "Save, then open it from Downloads",
+        drop: "Tap here to choose a file",
+        hint: "Works with .csv .txt .tsv",
+        found: "File status",
+        thai: "Thai characters found",
+        preview: "Readable preview",
+        btn: "Save a file Excel can open",
+        foot: "100 MB max · The new file is in Downloads",
+        needFile: "Please choose a file first.",
+        badFile: "Please choose a .csv, .txt, or .tsv file.",
+        tooBig: "File is larger than 100 MB. Split it first.",
+        saving: "Preparing the new file…",
+        done: "Done. Open your Downloads folder to use the file.",
+        okAlready: "This file already reads as Thai. We’ll still make it easier for Excel.",
+        enc: {
+          "utf-8": "Looks normal",
+          "windows-874": "Older file that often looks broken",
+          "utf-16le": "Excel file",
+          "utf-16be": "Excel file",
+          "utf-8-mojibake": "Broken characters",
+        }
+      }
+    };
+    const healthLabels = {
+      th: { online: "ใช้งานได้", offline: "ใช้ไม่ได้ชั่วคราว" },
+      en: { online: "Ready", offline: "Unavailable" },
+    };
+    function t(key) {
+      const lang = DC.currentLang();
+      return (I18N[lang] && I18N[lang][key]) || I18N.th[key] || key;
+    }
+    function encLabel(code) {
+      const lang = DC.currentLang();
+      return (I18N[lang].enc && I18N[lang].enc[code]) || code;
+    }
+    function showError(message) {
+      const el = document.getElementById("error");
+      document.getElementById("done").classList.add("hidden");
+      if (!message) { el.classList.add("hidden"); el.textContent = ""; return; }
+      el.textContent = message;
+      el.classList.remove("hidden");
+    }
+    function formatBytes(bytes) {
+      const n = Number(bytes);
+      if (!n) return "0 B";
+      const units = ["B", "KB", "MB", "GB"];
+      const i = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
+      return (n / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+    }
+    let selected = null;
+    let hasCustomName = false;
+    const zone = document.getElementById("dropzone");
+    const input = document.getElementById("fileInput");
+    zone.addEventListener("click", () => input.click());
+    input.addEventListener("change", () => { if (input.files[0]) setFile(input.files[0]); });
+    zone.addEventListener("dragover", (e) => { e.preventDefault(); });
+    zone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+    });
+    async function setFile(file) {
+      showError("");
+      document.getElementById("result").classList.add("hidden");
+      if (!/\.(csv|txt|tsv)$/i.test(file.name)) return showError(t("badFile"));
+      if (file.size > MAX_BYTES) return showError(t("tooBig"));
+      selected = file;
+      hasCustomName = true;
+      document.getElementById("fileName").textContent = file.name;
+      document.getElementById("fileHint").textContent = formatBytes(file.size);
+      try {
+        const form = new FormData();
+        form.append("file", file);
+        const res = await fetch("/api/v1/fix-encoding/preview", { method: "POST", body: form });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        document.getElementById("foundLabel").textContent = data.already_ok ? t("okAlready") : encLabel(data.encoding);
+        document.getElementById("thaiLabel").textContent = data.thai_chars;
+        document.getElementById("preview").textContent = data.preview || "—";
+        document.getElementById("result").classList.remove("hidden");
+      } catch (err) {
+        showError(err.message);
+      }
+    }
+    document.getElementById("fixBtn").onclick = async () => {
+      if (!selected) return showError(t("needFile"));
+      const btn = document.getElementById("fixBtn");
+      btn.disabled = true;
+      btn.textContent = t("saving");
+      showError("");
+      try {
+        const form = new FormData();
+        form.append("file", selected);
+        const res = await fetch("/api/v1/fix-encoding", { method: "POST", body: form });
+        if (!res.ok) throw new Error(await res.text());
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = selected.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        const done = document.getElementById("done");
+        done.textContent = t("done");
+        done.classList.remove("hidden");
+      } catch (err) {
+        showError(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t("btn");
+      }
+    };
+    function refreshStatic() {
+      DC.applyI18n(I18N);
+      if (!hasCustomName) {
+        document.getElementById("fileName").textContent = t("drop");
+        document.getElementById("fileHint").textContent = t("hint");
+      }
+      document.getElementById("fixBtn").textContent = t("btn");
+    }
+    refreshStatic();
+    DC.bindLangToggle(I18N);
+    window.addEventListener("dc-lang", refreshStatic);
+    const ping = () => DC.pingHealth(healthLabels);
+    ping();
+    setInterval(ping, 15000);
+    window.addEventListener("dc-lang", ping);
+  </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{$DOMAIN:datacooking.dev} {
+	encode gzip
+	request_body {
+		max_size 110MB
+	}
+	reverse_proxy app:3000
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataCooking.dev — แปลงไฟล์</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/">
+        <img src="/icon.svg" alt="">
+        <span>DataCooking.dev<small data-i="tagline">แปลงไฟล์ ใช้งานง่าย</small></span>
+      </a>
+      <div class="top-actions">
+        <div id="healthBadge" class="health">
+          <span id="healthDot" class="dot"></span>
+          <span id="healthLabel">กำลังเช็ค</span>
+        </div>
+        <div class="lang">
+          <button type="button" data-lang-btn="th">ไทย</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <h1 data-i="hero">เลือกสิ่งที่ต้องการทำ</h1>
+    <p class="lead" data-i="lead">กดช่องด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องติดตั้งโปรแกรม</p>
+
+    <ol class="steps">
+      <li><span class="num">1</span><span data-i="s1">เลือกงานที่ต้องการ</span></li>
+      <li><span class="num">2</span><span data-i="s2">กดปุ่มเลือกไฟล์จากเครื่อง</span></li>
+      <li><span class="num">3</span><span data-i="s3">กดแปลง ไฟล์ใหม่อยู่ในโฟลเดอร์ดาวน์โหลด</span></li>
+    </ol>
+
+    <a class="choice" href="/fix-encoding.html">
+      <strong data-i="t1">เปิดไฟล์แล้วตัวอักษรเพี้ยน</strong>
+      <span data-i="t1d">เช่น เปิดใน Excel แล้วไทยอ่านไม่ได้ กดที่นี่</span>
+    </a>
+    <a class="choice" href="/csv-parquet.html">
+      <strong data-i="t2">ทำให้ไฟล์เล็กลง หรือเปิดไฟล์เล็กกลับเป็น Excel</strong>
+      <span data-i="t2d">แปลง CSV ให้เล็ก หรือแปลงกลับเป็น CSV เพื่อเปิดใน Excel</span>
+    </a>
+
+    <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB และไม่เก็บไว้บนเว็บหลังใช้งาน</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: {
+        tagline: "แปลงไฟล์ ใช้งานง่าย",
+        hero: "เลือกสิ่งที่ต้องการทำ",
+        lead: "กดช่องด้านล่าง แล้วเลือกไฟล์จากเครื่อง ไม่ต้องติดตั้งโปรแกรม",
+        s1: "เลือกงานที่ต้องการ",
+        s2: "กดปุ่มเลือกไฟล์จากเครื่อง",
+        s3: "กดแปลง ไฟล์ใหม่อยู่ในโฟลเดอร์ดาวน์โหลด",
+        t1: "เปิดไฟล์แล้วตัวอักษรเพี้ยน",
+        t1d: "เช่น เปิดใน Excel แล้วไทยอ่านไม่ได้ กดที่นี่",
+        t2: "ทำให้ไฟล์เล็กลง หรือเปิดไฟล์เล็กกลับเป็น Excel",
+        t2d: "แปลง CSV ให้เล็ก หรือแปลงกลับเป็น CSV เพื่อเปิดใน Excel",
+        foot: "ไฟล์ไม่เกิน 100 MB และไม่เก็บไว้บนเว็บหลังใช้งาน",
+      },
+      en: {
+        tagline: "Simple file tools",
+        hero: "What do you want to do?",
+        lead: "Tap a box, then pick a file from your computer. Nothing to install.",
+        s1: "Choose a task",
+        s2: "Tap the button and pick a file",
+        s3: "Convert. The new file is in your Downloads folder",
+        t1: "The file opens with broken Thai text",
+        t1d: "For example Excel shows junk characters. Tap here.",
+        t2: "Make a file smaller, or open it in Excel again",
+        t2d: "Turn CSV into a smaller file, or back into CSV for Excel.",
+        foot: "100 MB max. Nothing is kept on the website.",
+      }
+    };
+    const healthLabels = {
+      th: { online: "ใช้งานได้", offline: "ใช้ไม่ได้ชั่วคราว" },
+      en: { online: "Ready", offline: "Unavailable" },
+    };
+    DC.applyI18n(I18N);
+    DC.bindLangToggle(I18N);
+    const ping = () => DC.pingHealth(healthLabels);
+    ping();
+    setInterval(ping, 15000);
+    window.addEventListener("dc-lang", ping);
+  </script>
+</body>
+</html>

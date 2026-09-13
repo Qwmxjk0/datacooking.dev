@@ -1,0 +1,25 @@
+[package]
+name = "datacooking"
+version = "0.1.0"
+edition = "2024"
+description = "High-performance data utility tools"
+publish = false
+
+[dependencies]
+arrow = { version = "59.3.0", features = ["csv"] }
+axum = { version = "0.8.9", features = ["multipart"] }
+bytes = "1.10.1"
+chrono = { version = "0.4.45", default-features = false, features = ["clock", "std"] }
+encoding_rs = "0.8.35"
+futures-core = "0.3.31"
+metrics = "0.24.6"
+metrics-exporter-prometheus = "0.18.3"
+parquet = { version = "59.3.0", features = ["arrow"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+tempfile = "3.27.0"
+tokio = { version = "1.53.1", features = ["fs", "io-util", "macros", "net", "rt-multi-thread", "signal"] }
+tokio-util = { version = "0.7.16", features = ["io"] }
+tower-http = { version = "0.7.1", features = ["cors", "fs", "trace"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }

@@ -1,0 +1,81 @@
+mod api;
+mod encoding;
+mod engine;
+mod error;
+mod telemetry;
+
+use axum::Router;
+use axum::extract::DefaultBodyLimit;
+use axum::routing::{get, post};
+use std::net::SocketAddr;
+use std::path::PathBuf;
+use tower_http::cors::CorsLayer;
+use tower_http::services::ServeDir;
+use tower_http::trace::TraceLayer;
+
+/// 100 MiB cap per upload. Files stream to disk; this is the hard ceiling.
+pub const MAX_UPLOAD_BYTES: usize = 100 * 1024 * 1024;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let prometheus_handle = telemetry::init_telemetry();
+    let static_dir = std::env::var("STATIC_DIR").unwrap_or_else(|_| "static".into());
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(3000);
+
+    let app = Router::new()
+        .route("/health", get(api::health_check))
+        .route("/metrics", get(api::metrics_handler))
+        .route("/api/v1/csv-to-parquet", post(api::csv_to_parquet_handler))
+        .route("/api/v1/parquet-to-csv", post(api::parquet_to_csv_handler))
+        .route("/api/v1/compare", post(api::compare_handler))
+        .route(
+            "/api/v1/fix-encoding/preview",
+            post(api::encoding_preview_handler),
+        )
+        .route("/api/v1/fix-encoding", post(api::encoding_fix_handler))
+        .fallback_service(ServeDir::new(PathBuf::from(&static_dir)))
+        .layer(TraceLayer::new_for_http())
+        .layer(CorsLayer::permissive())
+        .layer(DefaultBodyLimit::max(MAX_UPLOAD_BYTES + 1024 * 1024))
+        .with_state(prometheus_handle);
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    tracing::info!("DataCooking.dev listening on http://{addr}");
+    tracing::info!("health:   http://{addr}/health");
+    tracing::info!("metrics:  http://{addr}/metrics");
+    tracing::info!("static:   {static_dir}");
+
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
+    Ok(())
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {},
+        _ = terminate => {},
+    }
+    tracing::info!("shutdown signal received");
+}

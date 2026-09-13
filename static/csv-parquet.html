@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ทำให้ไฟล์เล็กลง — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/">
+        <img src="/icon.svg" alt="">
+        <span>DataCooking.dev<small data-i="tagline">ทำให้ไฟล์เล็กลง</small></span>
+      </a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div id="healthBadge" class="health">
+          <span id="healthDot" class="dot"></span>
+          <span id="healthLabel">กำลังเช็ค</span>
+        </div>
+        <div class="lang">
+          <button type="button" data-lang-btn="th">ไทย</button>
+          <button type="button" data-lang-btn="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <h1 data-i="title">ทำให้ไฟล์เล็กลง หรือเปิดกลับใน Excel</h1>
+    <p class="lead" data-i="lead">เลือกก่อนว่าตอนนี้มีไฟล์แบบไหน แล้วกดเลือกไฟล์จากเครื่อง</p>
+
+    <div class="tabs">
+      <button type="button" class="tab on" id="tabCsv" data-i="tabCsv">ฉันมีไฟล์ CSV</button>
+      <button type="button" class="tab" id="tabPq" data-i="tabPq">ฉันมีไฟล์ Parquet</button>
+    </div>
+
+    <section id="panelCsv" class="card">
+      <ol class="steps">
+        <li><span class="num">1</span><span data-i="csvS1">กดเลือกไฟล์ .csv จากเครื่อง</span></li>
+        <li><span class="num">2</span><span data-i="csvS2">กดทำให้เล็ก ไฟล์ใหม่อยู่ที่ดาวน์โหลด</span></li>
+      </ol>
+      <div id="csvDropzone" class="pick">
+        <input type="file" id="csvFileInput" accept=".csv,text/csv" class="hidden">
+        <p id="csvFileName" class="pick-title" data-i="csvDrop">กดที่นี่เพื่อเลือกไฟล์ CSV</p>
+        <p id="csvFileHint" class="pick-sub" data-i="csvHint">แถวแรกของไฟล์ต้องเป็นชื่อคอลัมน์</p>
+      </div>
+      <p id="csvError" class="err hidden"></p>
+      <p id="csvDone" class="ok hidden"></p>
+      <div id="csvCompare" class="hidden">
+        <div class="stats">
+          <div class="stat"><small data-i="oldSize">ขนาดเดิม</small><b id="csvBarLabel">—</b></div>
+          <div class="stat"><small data-i="newSize">ขนาดใหม่</small><b id="parquetBarLabel">—</b></div>
+          <div class="stat"><small data-i="rows">จำนวนแถว</small><b id="csvRows">—</b></div>
+          <div class="stat"><small data-i="saved">ผลลัพธ์</small><b id="csvSaved">—</b></div>
+        </div>
+        <p id="roundtripBox" class="ok hidden"></p>
+      </div>
+      <button id="csvConvertBtn" class="btn" data-i="csvBtn">ทำให้ไฟล์เล็กลง</button>
+      <button id="csvCompareBtn" class="btn btn-ghost" data-i="cmpBtn">ตรวจด้วยว่าข้อมูลยังครบ</button>
+    </section>
+
+    <section id="panelPq" class="card hidden">
+      <ol class="steps">
+        <li><span class="num">1</span><span data-i="pqS1">กดเลือกไฟล์ .parquet จากเครื่อง</span></li>
+        <li><span class="num">2</span><span data-i="pqS2">กดแปลงเป็น CSV เพื่อเปิดใน Excel</span></li>
+      </ol>
+      <div id="parquetDropzone" class="pick">
+        <input type="file" id="parquetFileInput" accept=".parquet" class="hidden">
+        <p id="parquetFileName" class="pick-title" data-i="pqDrop">กดที่นี่เพื่อเลือกไฟล์ Parquet</p>
+        <p id="parquetFileHint" class="pick-sub" data-i="pqHint">ได้ไฟล์ CSV กลับไปเปิดใน Excel</p>
+      </div>
+      <p id="parquetError" class="err hidden"></p>
+      <p id="pqDone" class="ok hidden"></p>
+      <div id="parquetCompare" class="hidden">
+        <div class="stats">
+          <div class="stat"><small>Parquet</small><b id="pInLabel">—</b></div>
+          <div class="stat"><small>CSV</small><b id="pOutLabel">—</b></div>
+          <div class="stat"><small data-i="rows">จำนวนแถว</small><b id="pRows">—</b></div>
+          <div class="stat"><small data-i="cols">จำนวนคอลัมน์</small><b id="pCols">—</b></div>
+        </div>
+      </div>
+      <button id="parquetConvertBtn" class="btn" data-i="pqBtn">แปลงเป็นไฟล์ Excel เปิดได้</button>
+    </section>
+
+    <p class="foot" data-i="foot">ไฟล์ไม่เกิน 100 MB · ไฟล์ใหม่อยู่ที่โฟลเดอร์ดาวน์โหลด</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const MAX_BYTES = 100 * 1024 * 1024;
+    const I18N = {
+      th: {
+        tagline: "ทำให้ไฟล์เล็กลง",
+        allTools: "← กลับหน้าแรก",
+        title: "ทำให้ไฟล์เล็กลง หรือเปิดกลับใน Excel",
+        lead: "เลือกก่อนว่าตอนนี้มีไฟล์แบบไหน แล้วกดเลือกไฟล์จากเครื่อง",
+        tabCsv: "ฉันมีไฟล์ CSV",
+        tabPq: "ฉันมีไฟล์ Parquet",
+        csvS1: "กดเลือกไฟล์ .csv จากเครื่อง",
+        csvS2: "กดทำให้เล็ก ไฟล์ใหม่อยู่ที่ดาวน์โหลด",
+        csvDrop: "กดที่นี่เพื่อเลือกไฟล์ CSV",
+        csvHint: "แถวแรกของไฟล์ต้องเป็นชื่อคอลัมน์",
+        oldSize: "ขนาดเดิม",
+        newSize: "ขนาดใหม่",
+        rows: "จำนวนแถว",
+        cols: "จำนวนคอลัมน์",
+        saved: "ผลลัพธ์",
+        csvBtn: "ทำให้ไฟล์เล็กลง",
+        cmpBtn: "ตรวจด้วยว่าข้อมูลยังครบ",
+        pqS1: "กดเลือกไฟล์ .parquet จากเครื่อง",
+        pqS2: "กดแปลงเป็น CSV เพื่อเปิดใน Excel",
+        pqDrop: "กดที่นี่เพื่อเลือกไฟล์ Parquet",
+        pqHint: "ได้ไฟล์ CSV กลับไปเปิดใน Excel",
+        pqBtn: "แปลงเป็นไฟล์ Excel เปิดได้",
+        foot: "ไฟล์ไม่เกิน 100 MB · ไฟล์ใหม่อยู่ที่โฟลเดอร์ดาวน์โหลด",
+        cooking: "กำลังทำไฟล์ใหม่…",
+        comparing: "กำลังตรวจ…",
+        restoring: "กำลังแปลง…",
+        needCsv: "ยังไม่ได้เลือกไฟล์ CSV",
+        needParquet: "ยังไม่ได้เลือกไฟล์ Parquet",
+        badCsv: "กรุณาเลือกไฟล์นามสกุล .csv",
+        badParquet: "กรุณาเลือกไฟล์นามสกุล .parquet",
+        tooBig: "ไฟล์ใหญ่เกิน 100 MB กรุณาแยกไฟล์ก่อน",
+        smaller: "เล็กกว่าเดิม {n}%",
+        larger: "ใหญ่กว่าเดิม {n}%",
+        same: "ขนาดเท่าเดิม",
+        done: "เสร็จแล้ว เปิดโฟลเดอร์ดาวน์โหลดบนเครื่องเพื่อใช้ไฟล์",
+        rtOk: "ข้อมูลครบ มี {rows} แถว ชื่อคอลัมน์เหมือนเดิม",
+        rtBad: "ข้อมูลยังไม่ตรง กรุณาลองไฟล์อีกครั้ง",
+      },
+      en: {
+        tagline: "Make files smaller",
+        allTools: "← Home",
+        title: "Make a file smaller, or open it in Excel",
+        lead: "First choose which file you have, then pick it from your computer.",
+        tabCsv: "I have a CSV file",
+        tabPq: "I have a Parquet file",
+        csvS1: "Pick a .csv file from your computer",
+        csvS2: "Make it smaller. The new file is in Downloads",
+        csvDrop: "Tap here to choose a CSV file",
+        csvHint: "The first row must be column names",
+        oldSize: "Original size",
+        newSize: "New size",
+        rows: "Rows",
+        cols: "Columns",
+        saved: "Result",
+        csvBtn: "Make the file smaller",
+        cmpBtn: "Also check the data is complete",
+        pqS1: "Pick a .parquet file from your computer",
+        pqS2: "Convert to CSV so Excel can open it",
+        pqDrop: "Tap here to choose a Parquet file",
+        pqHint: "You get a CSV back for Excel",
+        pqBtn: "Convert to a file Excel can open",
+        foot: "100 MB max · The new file is in Downloads",
+        cooking: "Preparing the new file…",
+        comparing: "Checking…",
+        restoring: "Converting…",
+        needCsv: "Please choose a CSV file first.",
+        needParquet: "Please choose a Parquet file first.",
+        badCsv: "Please choose a .csv file.",
+        badParquet: "Please choose a .parquet file.",
+        tooBig: "File is larger than 100 MB. Split it first.",
+        smaller: "{n}% smaller",
+        larger: "{n}% larger",
+        same: "same size",
+        done: "Done. Open your Downloads folder to use the file.",
+        rtOk: "Data is complete: {rows} rows, same column names",
+        rtBad: "The data does not match. Try another file.",
+      }
+    };
+    const healthLabels = {
+      th: { online: "ใช้งานได้", offline: "ใช้ไม่ได้ชั่วคราว" },
+      en: { online: "Ready", offline: "Unavailable" },
+    };
+    function t(key) {
+      const lang = DC.currentLang();
+      return (I18N[lang] && I18N[lang][key]) || I18N.th[key] || key;
+    }
+    function formatBytes(bytes) {
+      const n = Number(bytes);
+      if (!n) return "0 B";
+      const units = ["B", "KB", "MB", "GB"];
+      const i = Math.min(units.length - 1, Math.floor(Math.log(n) / Math.log(1024)));
+      return (n / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) + " " + units[i];
+    }
+    function savedLabel(pct) {
+      const n = Number(pct);
+      if (Number.isNaN(n)) return "—";
+      if (n > 0) return t("smaller").replace("{n}", n.toFixed(1));
+      if (n < 0) return t("larger").replace("{n}", Math.abs(n).toFixed(1));
+      return t("same");
+    }
+    function showError(id, message) {
+      const el = document.getElementById(id);
+      if (!message) { el.classList.add("hidden"); el.textContent = ""; return; }
+      el.textContent = message;
+      el.classList.remove("hidden");
+    }
+    function filenameFromDisposition(header, fallback) {
+      if (!header) return fallback;
+      const match = /filename=\"?([^\";]+)\"?/i.exec(header);
+      return match ? match[1] : fallback;
+    }
+    function bindPick(zone, input, onFile) {
+      zone.addEventListener("click", () => input.click());
+      input.addEventListener("change", () => { if (input.files[0]) onFile(input.files[0]); });
+      zone.addEventListener("dragover", (e) => e.preventDefault());
+      zone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files[0]) onFile(e.dataTransfer.files[0]);
+      });
+    }
+    async function postFile(url, file) {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(url, { method: "POST", body: form });
+      if (!res.ok) throw new Error((await res.text()) || ("HTTP " + res.status));
+      return res;
+    }
+    async function downloadResponse(res, fallbackName) {
+      const blob = await res.blob();
+      const name = filenameFromDisposition(res.headers.get("Content-Disposition"), fallbackName);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    function setTab(which) {
+      const csv = which === "csv";
+      document.getElementById("tabCsv").classList.toggle("on", csv);
+      document.getElementById("tabPq").classList.toggle("on", !csv);
+      document.getElementById("panelCsv").classList.toggle("hidden", !csv);
+      document.getElementById("panelPq").classList.toggle("hidden", csv);
+    }
+    document.getElementById("tabCsv").onclick = () => setTab("csv");
+    document.getElementById("tabPq").onclick = () => setTab("pq");
+
+    let csvFile = null, parquetFile = null, csvHasCustomName = false, parquetHasCustomName = false;
+    function setCsvFile(file) {
+      showError("csvError", "");
+      if (!/\.csv$/i.test(file.name)) return showError("csvError", t("badCsv"));
+      if (file.size > MAX_BYTES) return showError("csvError", t("tooBig"));
+      csvFile = file;
+      csvHasCustomName = true;
+      document.getElementById("csvFileName").textContent = file.name;
+      document.getElementById("csvFileHint").textContent = formatBytes(file.size);
+    }
+    function setParquetFile(file) {
+      showError("parquetError", "");
+      if (!/\.parquet$/i.test(file.name)) return showError("parquetError", t("badParquet"));
+      if (file.size > MAX_BYTES) return showError("parquetError", t("tooBig"));
+      parquetFile = file;
+      parquetHasCustomName = true;
+      document.getElementById("parquetFileName").textContent = file.name;
+      document.getElementById("parquetFileHint").textContent = formatBytes(file.size);
+    }
+    bindPick(document.getElementById("csvDropzone"), document.getElementById("csvFileInput"), setCsvFile);
+    bindPick(document.getElementById("parquetDropzone"), document.getElementById("parquetFileInput"), setParquetFile);
+
+    document.getElementById("csvConvertBtn").onclick = async () => {
+      if (!csvFile) return showError("csvError", t("needCsv"));
+      const btn = document.getElementById("csvConvertBtn");
+      btn.disabled = true;
+      btn.textContent = t("cooking");
+      showError("csvError", "");
+      try {
+        const res = await postFile("/api/v1/csv-to-parquet", csvFile);
+        document.getElementById("csvBarLabel").textContent = formatBytes(res.headers.get("X-Original-Bytes"));
+        document.getElementById("parquetBarLabel").textContent = formatBytes(res.headers.get("X-Output-Bytes"));
+        document.getElementById("csvRows").textContent = res.headers.get("X-Rows") || "—";
+        document.getElementById("csvSaved").textContent = savedLabel(res.headers.get("X-Reduction-Percent"));
+        document.getElementById("csvCompare").classList.remove("hidden");
+        await downloadResponse(res, csvFile.name.replace(/\.csv$/i, "") + ".parquet");
+        const done = document.getElementById("csvDone");
+        done.textContent = t("done");
+        done.classList.remove("hidden");
+      } catch (err) {
+        showError("csvError", err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t("csvBtn");
+      }
+    };
+    document.getElementById("csvCompareBtn").onclick = async () => {
+      if (!csvFile) return showError("csvError", t("needCsv"));
+      const btn = document.getElementById("csvCompareBtn");
+      btn.disabled = true;
+      btn.textContent = t("comparing");
+      showError("csvError", "");
+      try {
+        const res = await postFile("/api/v1/compare", csvFile);
+        const data = await res.json();
+        document.getElementById("csvBarLabel").textContent = formatBytes(data.csv_bytes);
+        document.getElementById("parquetBarLabel").textContent = formatBytes(data.parquet_bytes);
+        document.getElementById("csvRows").textContent = data.rows;
+        document.getElementById("csvSaved").textContent = savedLabel(data.reduction_percent);
+        const box = document.getElementById("roundtripBox");
+        box.className = data.round_trip_ok ? "ok" : "err";
+        box.textContent = data.round_trip_ok
+          ? t("rtOk").replace("{rows}", data.rows)
+          : t("rtBad");
+        box.classList.remove("hidden");
+        document.getElementById("csvCompare").classList.remove("hidden");
+      } catch (err) {
+        showError("csvError", err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t("cmpBtn");
+      }
+    };
+    document.getElementById("parquetConvertBtn").onclick = async () => {
+      if (!parquetFile) return showError("parquetError", t("needParquet"));
+      const btn = document.getElementById("parquetConvertBtn");
+      btn.disabled = true;
+      btn.textContent = t("restoring");
+      showError("parquetError", "");
+      try {
+        const res = await postFile("/api/v1/parquet-to-csv", parquetFile);
+        document.getElementById("pInLabel").textContent = formatBytes(res.headers.get("X-Original-Bytes"));
+        document.getElementById("pOutLabel").textContent = formatBytes(res.headers.get("X-Output-Bytes"));
+        document.getElementById("pRows").textContent = res.headers.get("X-Rows") || "—";
+        document.getElementById("pCols").textContent = res.headers.get("X-Columns") || "—";
+        document.getElementById("parquetCompare").classList.remove("hidden");
+        await downloadResponse(res, parquetFile.name.replace(/\.parquet$/i, "") + ".csv");
+        const done = document.getElementById("pqDone");
+        done.textContent = t("done");
+        done.classList.remove("hidden");
+      } catch (err) {
+        showError("parquetError", err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = t("pqBtn");
+      }
+    };
+    function refreshStatic() {
+      DC.applyI18n(I18N);
+      if (!csvHasCustomName) {
+        document.getElementById("csvFileName").textContent = t("csvDrop");
+        document.getElementById("csvFileHint").textContent = t("csvHint");
+      }
+      if (!parquetHasCustomName) {
+        document.getElementById("parquetFileName").textContent = t("pqDrop");
+        document.getElementById("parquetFileHint").textContent = t("pqHint");
+      }
+      document.getElementById("csvConvertBtn").textContent = t("csvBtn");
+      document.getElementById("csvCompareBtn").textContent = t("cmpBtn");
+      document.getElementById("parquetConvertBtn").textContent = t("pqBtn");
+    }
+    refreshStatic();
+    DC.bindLangToggle(I18N);
+    window.addEventListener("dc-lang", refreshStatic);
+    const ping = () => DC.pingHealth(healthLabels);
+    ping();
+    setInterval(ping, 15000);
+    window.addEventListener("dc-lang", ping);
+  </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+services:
+  datacooking:
+    build: .
+    container_name: datacooking-service
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+      - PORT=3000

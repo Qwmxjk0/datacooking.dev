@@ -1,0 +1,30 @@
+services:
+  app:
+    image: ${APP_IMAGE:-ghcr.io/qwmxjk0/datacooking:latest}
+    restart: unless-stopped
+    environment:
+      - RUST_LOG=info
+      - PORT=3000
+      - STATIC_DIR=/app/static
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN:-datacooking.dev}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+
+volumes:
+  caddy_data:
+  caddy_config:
