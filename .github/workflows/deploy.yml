@@ -52,10 +52,10 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ vars.DEPLOY_HOST || secrets.DEPLOY_HOST || '109.205.178.227' }}
-          username: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER || 'qwmxjk0' }}
+          username: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER || 'root' }}
           password: ${{ secrets.SECRET }}
           source: "docker-compose.prod.yml,Caddyfile"
-          target: /home/qwmxjk0/datacooking
+          target: /opt/datacooking
 
       - name: Pull and run
         uses: appleboy/ssh-action@v1.2.2
@@ -66,14 +66,14 @@ jobs:
           DOMAIN: ${{ vars.DOMAIN || 'datacooking.dev' }}
         with:
           host: ${{ vars.DEPLOY_HOST || secrets.DEPLOY_HOST || '109.205.178.227' }}
-          username: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER || 'qwmxjk0' }}
+          username: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER || 'root' }}
           password: ${{ secrets.SECRET }}
           envs: GITHUB_TOKEN,APP_IMAGE,GHCR_USER,DOMAIN
           script: |
             set -euo pipefail
-            mkdir -p /home/qwmxjk0/datacooking
+            mkdir -p /opt/datacooking
             echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
-            cd /home/qwmxjk0/datacooking
+            cd /opt/datacooking
             export APP_IMAGE
             export DOMAIN="${DOMAIN:-datacooking.dev}"
             docker compose -f docker-compose.prod.yml pull

@@ -2,8 +2,8 @@
 # Run on your Mac, from the project folder.
 set -euo pipefail
 
-HOST="${HOST:-qwmxjk0@109.205.178.227}"
-APP_DIR="${APP_DIR:-/home/qwmxjk0/datacooking}"
+HOST="${HOST:-root@109.205.178.227}"
+APP_DIR="${APP_DIR:-/opt/datacooking}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "upload ${ROOT} -> ${HOST}:${APP_DIR}"

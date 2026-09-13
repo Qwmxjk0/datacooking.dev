@@ -3,7 +3,7 @@
 set -euo pipefail
 
 DOMAIN="${DOMAIN:-datacooking.dev}"
-APP_DIR="${APP_DIR:-/home/qwmxjk0/datacooking}"
+APP_DIR="${APP_DIR:-/opt/datacooking}"
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "run as root: sudo DOMAIN=${DOMAIN} bash deploy/contabo.sh"
