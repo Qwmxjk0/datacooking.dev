@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>คุยกับ MiniCPM — DataCooking.dev</title>
+  <title>บอทจิ๋ว — DataCooking.dev</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,13 +25,13 @@
 <body>
   <div class="wrap">
     <header class="top">
-      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">คุยกับโมเดลบนเซิร์ฟเวอร์</small></span></a>
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">บอทจิ๋ว</small></span></a>
       <div class="top-actions">
         <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
         <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
       </div>
     </header>
-    <h1 data-i="title">คุยกับ MiniCPM บนเซิร์ฟเวอร์นี้</h1>
+    <h1 data-i="title">บอทจิ๋ว</h1>
     <p class="lead" data-i="lead">โมเดลเล็ก รันบนเครื่อง Contabo ไม่ได้รันบนคอมพิวเตอร์คุณ ช้าได้เพราะไม่มี GPU</p>
     <p id="ready" class="ok hidden"></p>
     <p id="down" class="err hidden"></p>
@@ -58,8 +58,8 @@
   <script src="/js/common.js"></script>
   <script>
     const I18N = {
-      th: { tagline: "คุยกับโมเดลบนเซิร์ฟเวอร์", allTools: "← กลับหน้าแรก", title: "คุยกับ MiniCPM บนเซิร์ฟเวอร์นี้", lead: "โมเดลเล็ก รันบนเครื่อง Contabo ไม่ได้รันบนคอมพิวเตอร์คุณ ช้าได้เพราะไม่มี GPU", send: "ส่ง", tune: "จูนคำตอบ", think: "โหมดคิด (ช้าลง แต่ละเอียดขึ้น)", sys: "ข้อความระบบ", foot: "โมเดล OpenBMB MiniCPM5-1B Q4 รันบนเซิร์ฟเวอร์ · แจกฟรี", ready: "โมเดลพร้อมคุย", down: "โมเดลบนเซิร์ฟเวอร์ยังไม่พร้อม รอโหลดไฟล์ก่อน", wait: "กำลังคิด…" },
-      en: { tagline: "Chat on the server", allTools: "← Home", title: "Chat with MiniCPM on this server", lead: "A small model running on the Contabo VPS, not your computer. It can be slow — no GPU.", send: "Send", tune: "Tune the reply", think: "Think mode (slower, more careful)", sys: "System prompt", foot: "OpenBMB MiniCPM5-1B Q4 on the server · free", ready: "Model is ready", down: "The server model is not ready yet", wait: "Thinking…" }
+      th: { tagline: "บอทจิ๋ว", allTools: "← กลับหน้าแรก", title: "บอทจิ๋ว", lead: "โมเดลเล็ก รันบนเซิร์ฟเวอร์นี้ ไม่ได้รันบนคอมพิวเตอร์คุณ ช้าได้เพราะไม่มี GPU", send: "ส่ง", tune: "จูนคำตอบ", think: "โหมดคิด (ช้าลง แต่ละเอียดขึ้น)", sys: "ข้อความระบบ", foot: "บอทจิ๋ว · MiniCPM5-1B บนเซิร์ฟเวอร์ · แจกฟรี", ready: "บอทจิ๋วพร้อมคุย", down: "บอทจิ๋วยังไม่พร้อม รอโหลดโมเดลบนเซิร์ฟก่อน", wait: "กำลังคิด…" },
+      en: { tagline: "Tiny bot", allTools: "← Home", title: "Tiny bot", lead: "A small model on this server, not your computer. It can be slow — no GPU.", send: "Send", tune: "Tune the reply", think: "Think mode (slower, more careful)", sys: "System prompt", foot: "Tiny bot · MiniCPM5-1B on the server · free", ready: "Tiny bot is ready", down: "Tiny bot is not ready yet", wait: "Thinking…" }
     };
     function t(k){ return (I18N[DC.currentLang()]||I18N.th)[k]; }
     DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("chat");

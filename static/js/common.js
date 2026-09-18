@@ -70,13 +70,12 @@
     {
       group: { th: "คุย", en: "Chat" },
       items: [
-        { id: "chat", href: "/chat.html", th: "คุยกับ MiniCPM", en: "MiniCPM chat", icon: "/icons/chat.svg" },
+        { id: "chat", href: "/chat.html", th: "บอทจิ๋ว", en: "Tiny bot", icon: "/icons/chat.svg" },
       ],
     },
     {
       group: { th: "ของเล่นเน็ต", en: "Network" },
       items: [
-        { id: "ip", href: "/my-ip.html", th: "ดู IP ของฉัน", en: "My IP", icon: "/icons/ip.svg" },
         { id: "subnet", href: "/subnet.html", th: "คำนวณ subnet", en: "Subnet", icon: "/icons/subnet.svg" },
       ],
     },
@@ -110,6 +109,10 @@
         document.getElementById("sbMem").textContent =
           fmtBytes(data.ram.used_bytes) + " / " + fmtBytes(data.ram.total_bytes);
       }
+      if (data.ip) {
+        const ipEl = document.getElementById("sbIp");
+        if (ipEl) ipEl.textContent = data.ip;
+      }
     } catch {}
   }
 
@@ -121,7 +124,8 @@
     bar.innerHTML =
       '<span class="statpill">CPU <b id="sbCpu">—</b><span class="statbar"><i id="sbCpuBar"></i></span></span>' +
       '<span class="statpill">RAM <b id="sbRamPct">—</b><span class="statbar"><i id="sbRamBar"></i></span></span>' +
-      '<span class="statpill">Memory <b id="sbMem">—</b></span>';
+      '<span class="statpill">Memory <b id="sbMem">—</b></span>' +
+      '<span class="statpill">Your IP <b id="sbIp">—</b></span>';
 
     const side = document.createElement("nav");
     side.className = "side";

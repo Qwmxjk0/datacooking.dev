@@ -56,11 +56,16 @@ pub async fn metrics_handler(State(state): State<AppState>) -> impl IntoResponse
     state.metrics.render()
 }
 
-pub async fn status_handler(State(state): State<AppState>) -> impl IntoResponse {
+pub async fn status_handler(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+) -> impl IntoResponse {
     Json(json!({
         "cpu_percent": state.cpu.percent(),
         "ram": status::ram(),
         "llm_ready": chat::llm_ready(&state.llm_url, &state.http).await,
+        "ip": client_ip(&headers, addr),
     }))
 }
 
@@ -75,14 +80,19 @@ pub async fn my_ip_handler(
     headers: HeaderMap,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
-    let forwarded = headers
+    Json(json!({
+        "ip": client_ip(&headers, addr),
+    }))
+}
+
+fn client_ip(headers: &HeaderMap, addr: SocketAddr) -> String {
+    headers
         .get("x-forwarded-for")
         .and_then(|v| v.to_str().ok())
         .and_then(|s| s.split(',').next())
-        .map(|s| s.trim().to_string());
-    Json(json!({
-        "ip": forwarded.unwrap_or_else(|| addr.ip().to_string()),
-    }))
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| addr.ip().to_string())
 }
 
 pub async fn donors_list(State(state): State<AppState>) -> impl IntoResponse {
