@@ -6,8 +6,56 @@ services:
       - RUST_LOG=info
       - PORT=3000
       - STATIC_DIR=/app/static
+      - LLM_URL=http://llm:8080
     expose:
       - "3000"
+
+  llm-fetch:
+    image: alpine:3.21
+    volumes:
+      - llm_models:/models
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        apk add --no-cache curl ca-certificates
+        if [ -s /models/MiniCPM5-1B-Q4_K_M.gguf ]; then
+          echo "model already present"
+          exit 0
+        fi
+        echo "downloading MiniCPM5-1B Q4 on the server"
+        curl -L --fail --retry 5 --retry-all-errors \
+          -o /models/MiniCPM5-1B-Q4_K_M.gguf \
+          https://huggingface.co/openbmb/MiniCPM5-1B-GGUF/resolve/main/MiniCPM5-1B-Q4_K_M.gguf
+    restart: "no"
+
+  llm:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    restart: unless-stopped
+    volumes:
+      - llm_models:/models:ro
+    command:
+      - -m
+      - /models/MiniCPM5-1B-Q4_K_M.gguf
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - -ngl
+      - "0"
+      - -c
+      - "4096"
+      - -t
+      - "4"
+      - --jinja
+      - --alias
+      - MiniCPM5-1B
+    expose:
+      - "8080"
+    depends_on:
+      llm-fetch:
+        condition: service_completed_successfully
 
   caddy:
     image: caddy:2-alpine
@@ -28,3 +76,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  llm_models:

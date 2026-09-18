@@ -5,6 +5,7 @@ use axum::response::{IntoResponse, Response};
 pub enum AppError {
     BadRequest(String),
     Unprocessable(String),
+    Unavailable(String),
     Internal(String),
 }
 
@@ -17,6 +18,10 @@ impl AppError {
         Self::Unprocessable(msg.into())
     }
 
+    pub fn unavailable(msg: impl Into<String>) -> Self {
+        Self::Unavailable(msg.into())
+    }
+
     pub fn internal(msg: impl Into<String>) -> Self {
         Self::Internal(msg.into())
     }
@@ -27,6 +32,7 @@ impl IntoResponse for AppError {
         let (status, message) = match &self {
             Self::BadRequest(message) => (StatusCode::BAD_REQUEST, message.as_str()),
             Self::Unprocessable(message) => (StatusCode::UNPROCESSABLE_ENTITY, message.as_str()),
+            Self::Unavailable(message) => (StatusCode::SERVICE_UNAVAILABLE, message.as_str()),
             Self::Internal(message) => (StatusCode::INTERNAL_SERVER_ERROR, message.as_str()),
         };
         (status, message.to_string()).into_response()

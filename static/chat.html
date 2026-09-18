@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คุยกับ MiniCPM — DataCooking.dev</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    .chat-log { min-height: 280px; max-height: 52vh; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
+    .bubble { padding: 12px 14px; border-radius: 14px; max-width: 92%; white-space: pre-wrap; word-break: break-word; }
+    .me { align-self: flex-end; background: #1a140c; border: 1px solid #f59e0b55; }
+    .bot { align-self: flex-start; background: #101218; border: 1px solid var(--line); }
+    .think { color: var(--muted); font-size: 0.9rem; border-left: 3px solid var(--line); padding-left: 8px; margin-bottom: 8px; }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    .row textarea { flex: 1; min-height: 52px; resize: vertical; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: #101218; color: var(--ink); font: inherit; }
+    .tune { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .tune label { display: block; color: var(--muted); font-size: 0.85rem; }
+    .tune input, .tune textarea { width: 100%; margin-top: 4px; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: #101218; color: var(--ink); font: inherit; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/"><img src="/icon.svg" alt=""><span>DataCooking.dev<small data-i="tagline">คุยกับโมเดลบนเซิร์ฟเวอร์</small></span></a>
+      <div class="top-actions">
+        <a class="back" href="/" data-i="allTools">← กลับหน้าแรก</a>
+        <div class="lang"><button type="button" data-lang-btn="th">ไทย</button><button type="button" data-lang-btn="en">EN</button></div>
+      </div>
+    </header>
+    <h1 data-i="title">คุยกับ MiniCPM บนเซิร์ฟเวอร์นี้</h1>
+    <p class="lead" data-i="lead">โมเดลเล็ก รันบนเครื่อง Contabo ไม่ได้รันบนคอมพิวเตอร์คุณ ช้าได้เพราะไม่มี GPU</p>
+    <p id="ready" class="ok hidden"></p>
+    <p id="down" class="err hidden"></p>
+    <div class="card">
+      <div id="log" class="chat-log"></div>
+      <div class="row">
+        <textarea id="input" data-i="ph" placeholder="พิมพ์ข้อความ…"></textarea>
+        <button class="btn" id="send" style="width:auto;margin:0;padding:12px 18px" data-i="send">ส่ง</button>
+      </div>
+      <details style="margin-top:14px">
+        <summary data-i="tune">จูนคำตอบ</summary>
+        <div class="tune">
+          <label>temperature <input id="temp" type="number" min="0.1" max="1.5" step="0.1" value="0.7"></label>
+          <label>top_p <input id="topp" type="number" min="0.1" max="1" step="0.05" value="0.95"></label>
+          <label>max tokens <input id="max" type="number" min="16" max="512" step="16" value="256"></label>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:22px"><input id="think" type="checkbox"> <span data-i="think">โหมดคิด (ช้าลง แต่ละเอียดขึ้น)</span></label>
+        </div>
+        <label data-i="sys" style="display:block;margin-top:10px;color:var(--muted);font-size:0.85rem">ข้อความระบบ</label>
+        <textarea id="system" rows="2" style="width:100%;margin-top:4px;padding:8px;border-radius:10px;border:1px solid var(--line);background:#101218;color:var(--ink);font:inherit"></textarea>
+      </details>
+    </div>
+    <p class="foot" data-i="foot">โมเดล OpenBMB MiniCPM5-1B Q4 รันบนเซิร์ฟเวอร์ · แจกฟรี</p>
+  </div>
+  <script src="/js/common.js"></script>
+  <script>
+    const I18N = {
+      th: { tagline: "คุยกับโมเดลบนเซิร์ฟเวอร์", allTools: "← กลับหน้าแรก", title: "คุยกับ MiniCPM บนเซิร์ฟเวอร์นี้", lead: "โมเดลเล็ก รันบนเครื่อง Contabo ไม่ได้รันบนคอมพิวเตอร์คุณ ช้าได้เพราะไม่มี GPU", send: "ส่ง", tune: "จูนคำตอบ", think: "โหมดคิด (ช้าลง แต่ละเอียดขึ้น)", sys: "ข้อความระบบ", foot: "โมเดล OpenBMB MiniCPM5-1B Q4 รันบนเซิร์ฟเวอร์ · แจกฟรี", ready: "โมเดลพร้อมคุย", down: "โมเดลบนเซิร์ฟเวอร์ยังไม่พร้อม รอโหลดไฟล์ก่อน", wait: "กำลังคิด…" },
+      en: { tagline: "Chat on the server", allTools: "← Home", title: "Chat with MiniCPM on this server", lead: "A small model running on the Contabo VPS, not your computer. It can be slow — no GPU.", send: "Send", tune: "Tune the reply", think: "Think mode (slower, more careful)", sys: "System prompt", foot: "OpenBMB MiniCPM5-1B Q4 on the server · free", ready: "Model is ready", down: "The server model is not ready yet", wait: "Thinking…" }
+    };
+    function t(k){ return (I18N[DC.currentLang()]||I18N.th)[k]; }
+    DC.applyI18n(I18N); DC.bindLangToggle(I18N); DC.mountChrome("chat");
+    window.addEventListener("dc-lang", () => DC.applyI18n(I18N));
+
+    const messages = [];
+    const log = document.getElementById("log");
+    const input = document.getElementById("input");
+
+    async function pingLlm(){
+      try {
+        const s = await fetch("/api/v1/status").then(r => r.json());
+        document.getElementById("ready").classList.toggle("hidden", !s.llm_ready);
+        document.getElementById("down").classList.toggle("hidden", !!s.llm_ready);
+        document.getElementById("ready").textContent = t("ready");
+        document.getElementById("down").textContent = t("down");
+      } catch {
+        document.getElementById("down").classList.remove("hidden");
+        document.getElementById("down").textContent = t("down");
+      }
+    }
+    pingLlm(); setInterval(pingLlm, 8000);
+
+    function addBubble(role, text){
+      const d = document.createElement("div");
+      d.className = "bubble " + (role === "user" ? "me" : "bot");
+      d.textContent = text;
+      log.appendChild(d);
+      log.scrollTop = log.scrollHeight;
+      return d;
+    }
+
+    async function send(){
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      messages.push({ role: "user", content: text });
+      addBubble("user", text);
+      const bot = addBubble("assistant", t("wait"));
+      const think = document.getElementById("think").checked;
+      const res = await fetch("/api/v1/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages,
+          temperature: Number(document.getElementById("temp").value),
+          top_p: Number(document.getElementById("topp").value),
+          max_tokens: Number(document.getElementById("max").value),
+          think,
+          system: document.getElementById("system").value
+        })
+      });
+      if (!res.ok) {
+        bot.textContent = await res.text();
+        return;
+      }
+      const reader = res.body.getReader();
+      const dec = new TextDecoder();
+      let buf = "";
+      let out = "";
+      let reason = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const parts = buf.split("\n");
+        buf = parts.pop();
+        for (const line of parts) {
+          const s = line.trim();
+          if (!s.startsWith("data:")) continue;
+          const data = s.slice(5).trim();
+          if (data === "[DONE]") continue;
+          try {
+            const j = JSON.parse(data);
+            const delta = j.choices && j.choices[0] && j.choices[0].delta;
+            if (!delta) continue;
+            if (delta.reasoning_content) reason += delta.reasoning_content;
+            if (delta.content) out += delta.content;
+          } catch {}
+        }
+        bot.innerHTML = (reason ? '<div class="think">' + reason.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])) + '</div>' : '') +
+          (out || "").replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+        log.scrollTop = log.scrollHeight;
+      }
+      const finalText = out || bot.textContent;
+      messages.push({ role: "assistant", content: finalText });
+    }
+    document.getElementById("send").onclick = send;
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+  </script>
+</body>
+</html>

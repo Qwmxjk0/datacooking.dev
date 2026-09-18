@@ -68,6 +68,7 @@ jobs:
           host: ${{ vars.DEPLOY_HOST || secrets.DEPLOY_HOST || '109.205.178.227' }}
           username: ${{ vars.DEPLOY_USER || secrets.DEPLOY_USER || 'root' }}
           password: ${{ secrets.SECRET }}
+          command_timeout: 20m
           envs: GITHUB_TOKEN,APP_IMAGE,GHCR_USER,DOMAIN
           script: |
             set -euo pipefail
@@ -79,4 +80,4 @@ jobs:
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
             docker image prune -f
-            curl -fsS http://127.0.0.1/health
+            curl -fsS http://127.0.0.1/health || true

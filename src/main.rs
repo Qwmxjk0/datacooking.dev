@@ -1,4 +1,5 @@
 mod api;
+mod chat;
 mod donors;
 mod encoding;
 mod engine;
@@ -31,18 +32,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .and_then(|v| v.parse().ok())
         .unwrap_or(3000);
 
+    let llm_url = std::env::var("LLM_URL").unwrap_or_default();
+    let http = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(120))
+        .build()?;
+
     let state = api::AppState {
         metrics: prometheus_handle,
         donors: Arc::new(donors::DonorQueue::new(
             PathBuf::from(&data_dir).join("donors.json"),
         )),
         cpu: Arc::new(status::CpuSampler::new()),
+        llm_url,
+        http,
     };
 
     let app = Router::new()
         .route("/health", get(api::health_check))
         .route("/metrics", get(api::metrics_handler))
         .route("/api/v1/status", get(api::status_handler))
+        .route("/api/v1/chat", post(api::chat_handler))
         .route("/api/v1/my-ip", get(api::my_ip_handler))
         .route(
             "/api/v1/donors",

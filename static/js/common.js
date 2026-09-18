@@ -68,6 +68,12 @@
       ],
     },
     {
+      group: { th: "คุย", en: "Chat" },
+      items: [
+        { id: "chat", href: "/chat.html", th: "คุยกับ MiniCPM", en: "MiniCPM chat", icon: "/icons/chat.svg" },
+      ],
+    },
+    {
       group: { th: "ของเล่นเน็ต", en: "Network" },
       items: [
         { id: "ip", href: "/my-ip.html", th: "ดู IP ของฉัน", en: "My IP", icon: "/icons/ip.svg" },

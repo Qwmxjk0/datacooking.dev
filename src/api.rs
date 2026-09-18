@@ -1,4 +1,5 @@
 use crate::MAX_UPLOAD_BYTES;
+use crate::chat::{self, ChatIn};
 use crate::donors::DonorQueue;
 use crate::encoding::{self, EncodingReport};
 use crate::engine::{self, CompareReport, ConversionStats};
@@ -30,6 +31,8 @@ pub struct AppState {
     pub metrics: PrometheusHandle,
     pub donors: Arc<DonorQueue>,
     pub cpu: Arc<status::CpuSampler>,
+    pub llm_url: String,
+    pub http: reqwest::Client,
 }
 
 pub async fn health_check() -> impl IntoResponse {
@@ -43,7 +46,8 @@ pub async fn health_check() -> impl IntoResponse {
             { "id": "fix-encoding", "path": "/fix-encoding.html", "status": "live" },
             { "id": "csv-parquet", "path": "/csv-parquet.html", "status": "live" },
             { "id": "my-ip", "path": "/my-ip.html", "status": "live" },
-            { "id": "subnet", "path": "/subnet.html", "status": "live" }
+            { "id": "subnet", "path": "/subnet.html", "status": "live" },
+            { "id": "chat", "path": "/chat.html", "status": "live" }
         ],
     }))
 }
@@ -56,7 +60,15 @@ pub async fn status_handler(State(state): State<AppState>) -> impl IntoResponse 
     Json(json!({
         "cpu_percent": state.cpu.percent(),
         "ram": status::ram(),
+        "llm_ready": chat::llm_ready(&state.llm_url, &state.http).await,
     }))
+}
+
+pub async fn chat_handler(
+    State(state): State<AppState>,
+    Json(body): Json<ChatIn>,
+) -> Result<Response, AppError> {
+    chat::proxy_chat(&state.llm_url, &state.http, body).await
 }
 
 pub async fn my_ip_handler(
